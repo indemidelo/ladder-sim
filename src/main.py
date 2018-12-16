@@ -1,4 +1,4 @@
-from Player import Player, Rules
+from src.Player import Player, Rules
 from queue import Queue
 import json
 
