@@ -1,16 +1,19 @@
 import threading as thr
 from numpy.random import choice
+import time
+import random
 
 
 class Game(thr.Thread):
-    def __init__(self, playerA, playerB):
+    def __init__(self, playerA, playerB, ladder):
         thr.Thread.__init__(self)
         self.players = playerA, playerB
         self.playerA = playerA
         self.playerB = playerB
+        self.ladder = ladder
 
     def run(self):
-        return self.play()
+        self.play()
 
     def play(self):
         """
@@ -19,7 +22,10 @@ class Game(thr.Thread):
         """
         total_p = sum([j.winrate for j in self.players])
         p = self.players[0].winrate / total_p
-        winner, loser = choice(self.players, 2, p=(p, 1 - p), replace=False)
-        winner.victory()
-        loser.defeat()
-        return winner, loser
+        winner, loser = choice(self.players, 2, p=(p, 1 - p),
+                               replace=False)
+        self.ladder.victory(winner)
+        self.ladder.defeat(loser)
+        #print('winner', winner, winner.stars, winner.winrate)
+        #print('loser', loser, loser.stars, loser.winrate)
+        time.sleep(random.random())

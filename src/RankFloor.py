@@ -9,6 +9,7 @@ class RankFloor(thr.Thread):
         self.id = rankid
         self.players = list()
         self.ladder = ladder
+        self.games_played = 0
 
     def initialize(self):
         pass
@@ -21,15 +22,17 @@ class RankFloor(thr.Thread):
         if len(self.players) > 1:
             playerA = self.players.pop(0)
             playerB = self.players.pop(0)
-            self.play_a_game(playerA, playerB)
+            #starttime=time.time()
+            Game(playerA, playerB, self.ladder).start()
+            #print(time.time()-starttime)
+            self.games_played += 1
         elif len(self.players) == 1:
             playerA = self.players.pop(0)
             playerB = self.ladder.free_player(self)
-            self.play_a_game(playerA, playerB)
+            Game(playerA, playerB, self.ladder).start()
+            self.games_played += 1
         else:
-            time.sleep(2)
+            #print(f'{time.time()} - {self.id}: sto aspettando giocatori')
+            #time.sleep(2)
+            pass
 
-    def play_a_game(self, playerA, playerB):
-        winner, loser = Game(playerA, playerB)
-        self.ladder.victory(winner)
-        self.ladder.defeat(loser)

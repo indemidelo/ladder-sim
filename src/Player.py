@@ -5,4 +5,8 @@ class Player(object):
         self.rank = rank
         self.stars = stars
         self.winstreak = 0
+        self.result = None
+
+    def __repr__(self):
+        return self.battletag
 
