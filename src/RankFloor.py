@@ -16,18 +16,22 @@ class RankFloor(thr.Thread):
         pass
 
     def run(self):
+        self.write()
         while 1:
             self.cycle()
 
+    def write(self):
+        WriteQueue(self).start()
+
     def cycle(self):
-        #print(f'dimensione rank floor {self.id}: {len(self.players)}')
+        # print(f'dimensione rank floor {self.id}: {len(self.players)}')
         if len(self.players) > 1:
             print(f'dimensione rank floor {self.id}: {len(self.players)}')
             playerA = self.players.pop(0)
             playerB = self.players.pop(0)
-            #starttime=time.time()
+            # starttime=time.time()
             Game(playerA, playerB, self.ladder).start()
-            #print(time.time()-starttime)
+            # print(time.time()-starttime)
             self.games_played += 1
         elif len(self.players) == 1:
             print(f'dimensione rank floor {self.id}: {len(self.players)}')
@@ -36,7 +40,18 @@ class RankFloor(thr.Thread):
             Game(playerA, playerB, self.ladder).start()
             self.games_played += 1
         else:
-            #print(f'{time.time()} - {self.id}: sto aspettando giocatori')
-            #time.sleep(2)
+            # print(f'{time.time()} - {self.id}: sto aspettando giocatori')
+            # time.sleep(2)
             pass
 
+
+class WriteQueue(thr.Thread):
+    def __init__(self, rank):
+        thr.Thread.__init__(self)
+        self.rank = rank
+
+    def run(self):
+        while 1:
+            if not self.rank.queue.isempty():
+                player = self.rank.queue.get()
+                self.rank.players.append(player)
