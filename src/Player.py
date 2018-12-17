@@ -6,6 +6,7 @@ class Player(object):
         self.stars = stars
         self.winstreak = 0
         self.result = None
+        self.busy = False
 
     def __repr__(self):
         return self.battletag

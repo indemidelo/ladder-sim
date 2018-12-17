@@ -35,4 +35,5 @@ class RankFloor(thr.Thread):
             #print(f'{time.time()} - {self.id}: sto aspettando giocatori')
             #time.sleep(2)
             pass
+        print(f'dimensione rank floor {self.id}: {len(self.players)}')
 

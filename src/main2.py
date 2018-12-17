@@ -17,6 +17,6 @@ for j in range(1000):
     p = Player(f'{j}#{j}', random.random(), rank)
     ladder.ranks[rank].players.append(p)
 
-ladder.ranks[rank_giulio].players.append(giulio)
+#ladder.ranks[rank_giulio].players.append(giulio)
 
 ladder.start()

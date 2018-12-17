@@ -17,7 +17,7 @@ class Ladder(object):
     def victory(self, player):
         stars = 2 if player.winstreak >= 3 else 1
         player.stars += stars
-        if player.battletag == 'giulio':
+        if player.battletag == '2#2':
             print(f'{player} just won a game!', player.stars)
         if player.rank > 5:
             player.winstreak += 1
@@ -34,7 +34,7 @@ class Ladder(object):
             print(f'{time.time()} - Player {player.battletag} just reached legend!')
             for k in self.ranks:
                 print(f'In rank {k.id} there are {len(k.players)} players')
-            print(f'Giulio achieved rank {self.giulio.rank}')
+            #print(f'Giulio achieved rank {self.giulio.rank}')
         else:
             player.stars -= 5
             print('conto stelle', player.stars)
@@ -45,7 +45,7 @@ class Ladder(object):
     def defeat(self, player):
         player.stars -= 1
         player.winstreak = 0
-        if player.battletag == 'giulio':
+        if player.battletag == '2#2':
             print(f'{player} just lost a game!', player.stars)
         if player.stars == -1:
             self.rank_down(player)
