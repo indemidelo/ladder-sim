@@ -4,9 +4,10 @@ import time
 
 
 class RankFloor(thr.Thread):
-    def __init__(self, rankid, ladder):
+    def __init__(self, rankid, ladder, queue):
         thr.Thread.__init__(self)
         self.id = rankid
+        self.players_queue = queue
         self.players = list()
         self.ladder = ladder
         self.games_played = 0
