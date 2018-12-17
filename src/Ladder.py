@@ -9,7 +9,8 @@ class Ladder(object):
         self.giulio = giulio
 
     def initialize(self):
-        self.ranks = [RankFloor(k, self) for k in range(25+1)]
+        #self.ranks = [RankFloor(k, self) for k in range(1, 25+1)]
+        self.ranks = [RankFloor(1, self)]
 
     def start(self):
         [rank.start() for rank in self.ranks]
@@ -25,6 +26,7 @@ class Ladder(object):
             self.rank_up(player)
         else:
             self.ranks[player.rank].players.append(player)
+            pass
 
     def rank_up(self, player):
         player.rank -= 1
@@ -32,8 +34,8 @@ class Ladder(object):
         if player.rank == 0:
             player.playing = False
             print(f'{time.time()} - Player {player.battletag} just reached legend!')
-            for k in self.ranks:
-                print(f'In rank {k.id} there are {len(k.players)} players')
+            #for k in self.ranks:
+                #print(f'In rank {k.id} there are {len(k.players)} players')
             #print(f'Giulio achieved rank {self.giulio.rank}')
         else:
             player.stars -= 5
@@ -51,6 +53,7 @@ class Ladder(object):
             self.rank_down(player)
         else:
             self.ranks[player.rank].players.append(player)
+            pass
 
     def rank_down(self, player):
         if player.rank in self.rules.rank_floors:

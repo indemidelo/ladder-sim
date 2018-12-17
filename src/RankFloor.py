@@ -19,7 +19,9 @@ class RankFloor(thr.Thread):
             self.cycle()
 
     def cycle(self):
+        #print(f'dimensione rank floor {self.id}: {len(self.players)}')
         if len(self.players) > 1:
+            print(f'dimensione rank floor {self.id}: {len(self.players)}')
             playerA = self.players.pop(0)
             playerB = self.players.pop(0)
             #starttime=time.time()
@@ -27,6 +29,7 @@ class RankFloor(thr.Thread):
             #print(time.time()-starttime)
             self.games_played += 1
         elif len(self.players) == 1:
+            print(f'dimensione rank floor {self.id}: {len(self.players)}')
             playerA = self.players.pop(0)
             playerB = self.ladder.free_player(self)
             Game(playerA, playerB, self.ladder).start()
@@ -35,5 +38,4 @@ class RankFloor(thr.Thread):
             #print(f'{time.time()} - {self.id}: sto aspettando giocatori')
             #time.sleep(2)
             pass
-        print(f'dimensione rank floor {self.id}: {len(self.players)}')
 

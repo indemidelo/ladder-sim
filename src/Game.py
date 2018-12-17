@@ -12,6 +12,10 @@ class Game(thr.Thread):
 
     def run(self):
         self.play()
+        #self.emptyplay()
+
+    def emptyplay(self):
+        pass
 
     def play(self):
         """
@@ -25,6 +29,6 @@ class Game(thr.Thread):
                                replace=False)
         self.ladder.victory(winner)
         self.ladder.defeat(loser)
-        #print('winner', winner, winner.stars, winner.winrate)
-        #print('loser', loser, loser.stars, loser.winrate)
+        print('winner', winner, winner.stars, winner.winrate)
+        print('loser', loser, loser.stars, loser.winrate)
         time.sleep(random.random())
