@@ -4,5 +4,3 @@ class Rules(object):
         self.starting_rank = starting_rank
         self.rank_floors = rank_floors
         self.starting_stars = starting_stars
-
-

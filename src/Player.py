@@ -5,9 +5,8 @@ class Player(object):
         self.rank = rank
         self.stars = stars
         self.winstreak = 0
-        self.result = None
-        self.busy = False
+        self.playing = False
+        self.logged_in = False
 
     def __repr__(self):
         return self.battletag
-
