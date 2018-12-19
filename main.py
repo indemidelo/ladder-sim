@@ -1,5 +1,6 @@
 from src.BattleNet import BattleNet
 from src.Hearthstone import Hearthstone
+from src.Rules import Rules
 import multiprocessing as mp
 # from queue import Queue
 from src.Player import Player
@@ -31,6 +32,9 @@ class BattleNetMock(mp.Process):
 
 
 if __name__ == '__main__':
+    starting_rank = 20
+    rank_floors = 20, 15, 10, 5
+    rules = Rules(starting_rank, rank_floors)
     ready_to_play = mp.Queue()
     queueing_players = mp.Queue()
     results_queue = mp.Queue()
@@ -40,7 +44,7 @@ if __name__ == '__main__':
         p = Player(f'{j}#{j}', 0.55)
         ready_to_play.put(p)
 
-    battlenet = BattleNet(ready_to_play, queueing_players,
+    battlenet = BattleNet(rules, ready_to_play, queueing_players,
                           results_queue, updates)
     hs = Hearthstone(queueing_players, results_queue)
     # hs = mp.Process(target=mock_hs, args=(results_queue, ))

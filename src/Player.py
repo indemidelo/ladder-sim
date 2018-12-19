@@ -9,4 +9,5 @@ class Player(object):
         self.logged_in = False
 
     def __repr__(self):
-        return self.battletag
+        return f'{self.battletag}-rank:{self.rank}-stars:' \
+            f'{self.stars}'
