@@ -54,7 +54,7 @@ class BattleNet(mp.Process):
         print(f'{time.time()} - Player {player.battletag}'
               f' logged out')
 
-    def run(self):
+    def run(self):  # todo divide the class in processes
         mp.Process(target=self.send_to_hs).start()
         mp.Process(target=self.get_game_results).start()
         mp.Process(target=self.process_results).start()
@@ -63,7 +63,7 @@ class BattleNet(mp.Process):
         while 1:
             if not self.ready_to_play.empty():
                 p = self.ready_to_play.get()
-                self.queueing_players.put(p)
+                self.queueing_players.put(p, block=True)
                 print(f'{time.time()} - {p} sent to hs')
 
     def get_game_results(self):
@@ -86,7 +86,7 @@ class BattleNet(mp.Process):
         self.victory(result['winner'])
         self.defeat(result['loser'])
         self.ready_to_play.put(result['winner'])
-        time.sleep(random.random() * 10)
+        #time.sleep(random.random() * 10)
         self.ready_to_play.put(result['loser'])
 
     def victory(self, player):

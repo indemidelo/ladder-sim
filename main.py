@@ -40,7 +40,7 @@ if __name__ == '__main__':
     results_queue = mp.Queue()
     updates = mp.Queue()
 
-    for j in range(6):
+    for j in range(2):
         p = Player(f'{j}#{j}', 0.55)
         ready_to_play.put(p)
 

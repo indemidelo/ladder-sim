@@ -11,11 +11,28 @@ class Hearthstone(mp.Process):
         self.results = results
         self.pairs_ready = mp.Queue()
 
-    def run(self):
-        thr.Thread(target=recv_players,
-                   args=(self.queueing_players, self.pairs_ready)).start()
-        thr.Thread(target=fire_games,
-                   args=(self.pairs_ready, self.results)).start()
+    def run(self):  # todo divide the class in processes
+        mp.Process(target=self.recv_players).start()
+        mp.Process(target=self.fire_games).start()
+
+    def recv_players(self):
+        p1, p2 = None, None
+        while 1:
+            if not p1 and not self.queueing_players.empty():
+                p1 = self.queueing_players.get()
+            if p1 and not self.queueing_players.empty():
+                p2 = self.queueing_players.get()
+            if p1 and p2:
+                self.pairs_ready.put((p1, p2))
+                print(f'{time.time()} - {p1} paired with {p2}')
+                p1, p2 = None, None
+
+    def fire_games(self):
+        while 1:
+            if not self.pairs_ready.empty():
+                p1, p2 = self.pairs_ready.get()
+                Game(p1, p2, self.results).start()
+                print(f'{time.time()} - {p1} is playing with {p2}')
 
 
 def recv_playersOLD(queueing_players, pairs_ready):
@@ -34,19 +51,3 @@ def recv_playersOLD(queueing_players, pairs_ready):
             continue
         pairs_ready.put((p1, p2))
         print(f'{time.time()} - {p1} paired with {p2}')
-
-
-def recv_players(queueing_players, pairs_ready):
-    while 1:
-        p1 = queueing_players.get()
-        p2 = queueing_players.get()
-        pairs_ready.put((p1, p2))
-        print(f'{time.time()} - {p1} paired with {p2}')
-
-
-def fire_games(pairs_ready, results):
-    while 1:
-        if not pairs_ready.empty():
-            p1, p2 = pairs_ready.get()
-            Game(p1, p2, results).start()
-            print(f'{time.time()} - {p1} is playing with {p2}')
