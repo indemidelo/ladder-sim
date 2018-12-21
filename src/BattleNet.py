@@ -83,25 +83,38 @@ class BattleNetUpdates(mp.Process):
         self.rules = rules
         self.ready_to_play = ready_to_play
         self.updates = updates
+        self.ranks_distribution = {j: 0 for j in range(26)}
 
     def run(self):
         mp.Process(target=self.process_results).start()
 
     def process_results(self):
+        self.log = open(f'log/{time.time()}_playerbase.log', 'a')
+        self.climbing = open(f'log/{time.time()}_climbing.log', 'a')
         while 1:
             if not self.updates.empty():
                 res = self.updates.get()
-                self.update_players(res)
+                winner = res['winner']
+                loser = res['loser']
+                self.update_players(winner, loser)
                 # print(f'{time.time()} - update triggered by'
                 # f' {res} completed')
 
-    def update_players(self, result):
-        self.victory(result['winner'])
-        self.defeat(result['loser'])
-        if result['winner'].rank > 0:
-            self.ready_to_play.put(result['winner'])
+    def update_players(self, winner, loser):
+        self.victory(winner)
+        self.defeat(loser)
+        self.log.write(f'{self.ranks_distribution}\n')
+        if winner.rank > 0:
+            self.ready_to_play.put(winner)
         # time.sleep(random.random() * 10)
-        self.ready_to_play.put(result['loser'])
+        self.ready_to_play.put(loser)
+
+    def update_rank_distribution(self, player, winner=True):
+        if winner:
+            self.ranks_distribution[player.rank + 1] = max(0, self.ranks_distribution[player.rank + 1] - 1)
+        else:
+            self.ranks_distribution[player.rank - 1] = max(0, self.ranks_distribution[player.rank - 1] - 1)
+        self.ranks_distribution[player.rank] += 1
 
     def victory(self, player):
         stars = 2 if player.winstreak >= 3 else 1
@@ -119,14 +132,18 @@ class BattleNetUpdates(mp.Process):
 
     def rank_up(self, player):
         player.rank -= 1
+        self.update_rank_distribution(player, winner=True)
         if player.rank == 0:
             player.playing = False
-            print(f'{time.time()} - Player {player} '
-                  f'just reached legend!')
+            msg = f'{time.time()} - Player {player} ' \
+                f'just reached legend!'
+            print(msg)
+            self.climbing.write(f'{msg}\n')
         else:
             player.stars -= 5
-            print(f'{player} just reached '
-                  f'rank {player.rank}')
+            msg = f'{player} just reached rank {player.rank}'
+            print(msg)
+            self.climbing.write(f'{msg}\n')
             if player.rank <= 5:
                 player.winstreak = 0
 
@@ -136,3 +153,4 @@ class BattleNetUpdates(mp.Process):
         else:
             player.rank += 1
             player.stars = 4
+            self.update_rank_distribution(player, winner=False)

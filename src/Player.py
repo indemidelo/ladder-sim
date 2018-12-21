@@ -10,4 +10,4 @@ class Player(object):
 
     def __repr__(self):
         return f'{self.battletag}-rank:{self.rank}-stars:' \
-            f'{self.stars}-winrate:{self.winrate}'
+            f'{self.stars}-winrate:{round(self.winrate, 3)}'

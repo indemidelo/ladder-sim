@@ -48,7 +48,8 @@ if __name__ == '__main__':
 
     for j in range(n_players):
         winrate = random.random()
-        p = Player(f'{j}#{j}', winrate)
+        rank = random.sample(range(4, 26), 1)[0]
+        p = Player(f'{j}#{j}', winrate, rank)
         ready_to_play.put(p)
 
     battlenet = BattleNet(ready_to_play, queueing_players)
