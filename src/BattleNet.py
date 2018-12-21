@@ -56,7 +56,7 @@ class BattleNet(mp.Process):
             if not self.ready_to_play.empty():
                 p = self.ready_to_play.get()
                 self.queueing_players.put(p, block=True)
-                print(f'{time.time()} - {p} sent to hs')
+                # print(f'{time.time()} - {p} sent to hs')
 
 
 class BattleNetResults(mp.Process):
@@ -72,9 +72,9 @@ class BattleNetResults(mp.Process):
         while 1:
             if not self.results_queue.empty():
                 res = self.results_queue.get()
-                print(f'{time.time()} - get {res} from hs')
+                # print(f'{time.time()} - get {res} from hs')
                 self.updates.put(res)
-                print(f'{time.time()} - {res} sent to update')
+                # print(f'{time.time()} - {res} sent to update')
 
 
 class BattleNetUpdates(mp.Process):
@@ -92,13 +92,14 @@ class BattleNetUpdates(mp.Process):
             if not self.updates.empty():
                 res = self.updates.get()
                 self.update_players(res)
-                print(f'{time.time()} - update triggered by'
-                      f' {res} completed')
+                # print(f'{time.time()} - update triggered by'
+                # f' {res} completed')
 
     def update_players(self, result):
         self.victory(result['winner'])
         self.defeat(result['loser'])
-        self.ready_to_play.put(result['winner'])
+        if result['winner'].rank > 0:
+            self.ready_to_play.put(result['winner'])
         # time.sleep(random.random() * 10)
         self.ready_to_play.put(result['loser'])
 
@@ -120,11 +121,11 @@ class BattleNetUpdates(mp.Process):
         player.rank -= 1
         if player.rank == 0:
             player.playing = False
-            print(f'{time.time()} - Player {player.battletag} '
+            print(f'{time.time()} - Player {player} '
                   f'just reached legend!')
         else:
             player.stars -= 5
-            print(f'{player.battletag} just reach '
+            print(f'{player} just reached '
                   f'rank {player.rank}')
             if player.rank <= 5:
                 player.winstreak = 0

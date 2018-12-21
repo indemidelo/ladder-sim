@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import time
+import random
 from src.BattleNet import BattleNet
 from src.BattleNet import BattleNetResults
 from src.BattleNet import BattleNetUpdates
@@ -35,7 +36,7 @@ class BattleNetMock(mp.Process):
 
 if __name__ == '__main__':
     starting_rank = 20
-    rank_floors = 20, 15, 10, 5
+    rank_floors = 25, 20, 15, 10, 5
     rules = Rules(starting_rank, rank_floors)
     ready_to_play = mp.Queue()
     queueing_players = mp.Queue()
@@ -43,8 +44,11 @@ if __name__ == '__main__':
     pairs_ready = mp.Queue()
     updates = mp.Queue()
 
-    for j in range(2):
-        p = Player(f'{j}#{j}', 0.55)
+    n_players = 100
+
+    for j in range(n_players):
+        winrate = random.random()
+        p = Player(f'{j}#{j}', winrate)
         ready_to_play.put(p)
 
     battlenet = BattleNet(ready_to_play, queueing_players)
