@@ -1,12 +1,9 @@
-import threading as thr
 import multiprocessing as mp
 import time
-import random
 
 
 class BattleNet(mp.Process):
-    def __init__(self, rules, ready_to_play, queueing_players,
-                 results_queue, updates):
+    def __init__(self, ready_to_play, queueing_players):
         """
 
         :param results: (Queue) of results
@@ -14,11 +11,8 @@ class BattleNet(mp.Process):
         """
         super(BattleNet, self).__init__()
         self.players = dict()
-        self.rules = rules
         self.ready_to_play = ready_to_play
         self.queueing_players = queueing_players
-        self.results_queue = results_queue
-        self.updates = updates
 
     def new_player(self, player):
         """
@@ -54,10 +48,8 @@ class BattleNet(mp.Process):
         print(f'{time.time()} - Player {player.battletag}'
               f' logged out')
 
-    def run(self):  # todo divide the class in processes
+    def run(self):
         mp.Process(target=self.send_to_hs).start()
-        mp.Process(target=self.get_game_results).start()
-        mp.Process(target=self.process_results).start()
 
     def send_to_hs(self):
         while 1:
@@ -66,6 +58,16 @@ class BattleNet(mp.Process):
                 self.queueing_players.put(p, block=True)
                 print(f'{time.time()} - {p} sent to hs')
 
+
+class BattleNetResults(mp.Process):
+    def __init__(self, results_queue, updates):
+        super(BattleNetResults, self).__init__()
+        self.results_queue = results_queue
+        self.updates = updates
+
+    def run(self):
+        mp.Process(target=self.get_game_results).start()
+
     def get_game_results(self):
         while 1:
             if not self.results_queue.empty():
@@ -73,6 +75,17 @@ class BattleNet(mp.Process):
                 print(f'{time.time()} - get {res} from hs')
                 self.updates.put(res)
                 print(f'{time.time()} - {res} sent to update')
+
+
+class BattleNetUpdates(mp.Process):
+    def __init__(self, rules, ready_to_play, updates):
+        super(BattleNetUpdates, self).__init__()
+        self.rules = rules
+        self.ready_to_play = ready_to_play
+        self.updates = updates
+
+    def run(self):
+        mp.Process(target=self.process_results).start()
 
     def process_results(self):
         while 1:
@@ -86,7 +99,7 @@ class BattleNet(mp.Process):
         self.victory(result['winner'])
         self.defeat(result['loser'])
         self.ready_to_play.put(result['winner'])
-        #time.sleep(random.random() * 10)
+        # time.sleep(random.random() * 10)
         self.ready_to_play.put(result['loser'])
 
     def victory(self, player):

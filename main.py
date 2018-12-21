@@ -1,10 +1,12 @@
-from src.BattleNet import BattleNet
-from src.Hearthstone import Hearthstone
-from src.Rules import Rules
 import multiprocessing as mp
-# from queue import Queue
-from src.Player import Player
 import time
+from src.BattleNet import BattleNet
+from src.BattleNet import BattleNetResults
+from src.BattleNet import BattleNetUpdates
+from src.Hearthstone import Hearthstone
+from src.Hearthstone import HearthstoneGames
+from src.Rules import Rules
+from src.Player import Player
 
 
 def mock_hs(results_queue):
@@ -38,16 +40,20 @@ if __name__ == '__main__':
     ready_to_play = mp.Queue()
     queueing_players = mp.Queue()
     results_queue = mp.Queue()
+    pairs_ready = mp.Queue()
     updates = mp.Queue()
 
     for j in range(2):
         p = Player(f'{j}#{j}', 0.55)
         ready_to_play.put(p)
 
-    battlenet = BattleNet(rules, ready_to_play, queueing_players,
-                          results_queue, updates)
-    hs = Hearthstone(queueing_players, results_queue)
-    # hs = mp.Process(target=mock_hs, args=(results_queue, ))
-    # hs.start()
+    battlenet = BattleNet(ready_to_play, queueing_players)
+    battlenet_results = BattleNetResults(results_queue, updates)
+    battlenet_updates = BattleNetUpdates(rules, ready_to_play, updates)
+    hs = Hearthstone(queueing_players, pairs_ready)
+    hs_games = HearthstoneGames(pairs_ready, results_queue)
     battlenet.start()
+    battlenet_results.start()
+    battlenet_updates.start()
     hs.start()
+    hs_games.start()
