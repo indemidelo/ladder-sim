@@ -1,36 +1,64 @@
-from Player import Player, Rules
-from queue import Queue
-import json
-
-rules_2k18 = Rules(starting_rank=20,
-                   rank_floors=(5, 10, 15, 20))
-res = Queue()
-giulio = Player('indemidelo#2190', .55, res, rules_2k18)
-
-giulio.initialize()
-giulio.start()
-res.get()
-
-N = 10000
-
-players_queues = [Queue() for _ in range(N)]
-playerbase = list()
-for j in range(N):
-    p = Player(f'{j}#{j}', .55, players_queues[j], rules_2k18)
-    p.initialize()
-    playerbase.append(p)
+import multiprocessing as mp
+import time
+import random
+from src.BattleNet import BattleNet
+from src.BattleNet import BattleNetResults
+from src.BattleNet import BattleNetUpdates
+from src.Hearthstone import Hearthstone
+from src.Hearthstone import HearthstoneGames
+from src.Rules import Rules
+from src.Player import Player
 
 
-[p.start() for p in playerbase]
+def mock_hs(results_queue):
+    while 1:
+        winner = Player('winner#0', 0.55)
+        loser = Player('loser#99', 0.55)
+        res = {'winner': winner, 'loser': loser}
+        results_queue.put(res)
+        time.sleep(1)
 
-results = [q.get() for q in players_queues]
-results_dict = {r['battletag']: r for r in results}
-with open('results.json', 'w') as jsonfile:
-    json.dump(results_dict, jsonfile, indent=4, sort_keys=True)
 
-with open('results.csv', 'w') as csvfile:
-    csvfile.write('player;total_games;win_rate\n')
-    for r in results:
-        csvfile.write(f'{r["battletag"]};'
-                      f'{r["win"]+r["loss"]};'
-                      f'{round(r["win"]/(r["win"]+r["loss"]), 3)}\n')
+class BattleNetMock(mp.Process):
+    def __init__(self, q1, q2, q3, q4):
+        super(BattleNetMock, self).__init__()
+        self.q1 = q1
+        self.q2 = q2
+        self.q3 = q3
+        self.q4 = q4
+
+    def initialize(self):
+        pass
+
+    def run(self):
+        print('pluto')
+
+
+if __name__ == '__main__':
+    starting_rank = 20
+    rank_floors = 25, 20, 15, 10, 5
+    rules = Rules(starting_rank, rank_floors)
+    ready_to_play = mp.Queue()
+    queueing_players = mp.Queue()
+    results_queue = mp.Queue()
+    pairs_ready = mp.Queue()
+    updates = mp.Queue()
+
+    n_players = 100
+
+    for j in range(n_players):
+        winrate = random.random()
+        rank = random.sample(range(4, 26), 1)[0]
+        p = Player(f'{j}#{j}', winrate, rank)
+        ready_to_play.put(p)
+
+    battlenet = BattleNet(ready_to_play, queueing_players)
+    battlenet_results = BattleNetResults(results_queue, updates)
+    battlenet_updates = BattleNetUpdates(rules, ready_to_play, updates)
+    hs = Hearthstone(queueing_players, pairs_ready)
+    hs_games = HearthstoneGames(pairs_ready, results_queue)
+    battlenet.start()
+    battlenet_results.start()
+    battlenet_updates.start()
+    hs.start()
+    hs_games.start()
